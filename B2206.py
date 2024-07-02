@@ -4,53 +4,40 @@ from collections import deque
 input = sys.stdin.readline
 
 n, m = map(int, input().split())
+graph = []
 
-map1 = []
+visited = [[[0] * 2 for _ in range(m)] for _ in range(n)]
+visited[0][0][0] = 1
+
 for i in range(n):
-    map1.append([])
+    graph.append([])
     for j in input().rstrip():
-        map1[-1].append(int(j))
+        graph[-1].append(int(j))
 
-#0이 이동할 수 있는 곳, 1이 벽일 때 한 개 이하의 벽을 부수고 최단 경로로 이동하는 경우를 구하기
-q = deque()
-q.append((0,0,1,0))
+dx = [0, 0, 1, -1]
+dy = [1, -1, 0, 0]
 k=0
+
+q = deque()
+q.append((0, 0, 0))
+
 while q:
-    x, y, c,cw = q.popleft()
-    
-    if x==n-1 and y==m-1:
-        k=c
-        print(c)
+    a, b, c = q.popleft()
+    if a == n - 1 and b == m - 1:
+        k=1
+        print(visited[a][b][c])
         break
-    
-    if x<n-1:
-        if map1[x+1][y]==0:
-            q.append((x+1,y,c+1,cw))
-            map1[x+1][y]==2
-        elif map1[x+1][y]==1 and cw==0:
-            q.append((x+1,y,c+1,cw+1))
-            map1[x+1][y]==2
-    if y<m-1:
-        if map1[x][y+1]==0:
-            map1[x][y+1]==2
-            q.append((x,y+1,c+1,cw))
-        elif map1[x][y+1]==1 and cw==0:
-            q.append((x,y+1,c+1,cw+1))
-            map1[x][y+1]==2
-    if x>0:
-        if map1[x-1][y]==0:
-            map1[x-1][y]==2
-            q.append((x-1,y,c+1,cw))
-        elif map1[x-1][y]==1 and cw==0:
-            q.append((x-1,y,c+1,cw+1))
-            map1[x-1][y]==2
-    if y>0:
-        if map1[x][y-1]==0:
-            map1[x][y-1]==2
-            q.append((x,y-1,c+1,cw))
-        elif map1[x][y-1]==1 and cw==0:
-            map1[x][y-1]==2
-            q.append((x,y-1,c+1,cw+1))
+    for i in range(4):
+        nx = a + dx[i]
+        ny = b + dy[i]
+        if nx < 0 or nx >= n or ny < 0 or ny >= m:
+            continue
+        if graph[nx][ny] == 1 and c == 0 :
+            visited[nx][ny][1] = visited[a][b][0] + 1
+            q.append((nx, ny, 1))
+        elif graph[nx][ny] == 0 and visited[nx][ny][c] == 0:
+            visited[nx][ny][c] = visited[a][b][c] + 1
+            q.append((nx, ny, c))
 
 if k==0:
     print(-1)
